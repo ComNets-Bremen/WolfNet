@@ -235,10 +235,25 @@ class AckPacket(BasePacket):
 
 
 class BeaconPacket(BasePacket):
-    def __init__(self, sender=None):
+    def __init__(self, sender=None, bat=(None, None)):
         super().__init__(sender)
         self.set_broadcast()
         self.set_type(self.TYPE_BEACON)
+        if bat != (None, None):
+            self.data = struct.pack("!II", bat[0], bat[1])
+
+    def getBattery(self):
+        if len(self.data) == 8:
+            return struct.unpack("!II", self.data)
+        return None
+
+    def __str__(self):
+        data = self.getBattery()
+        ret = ""
+        if data:
+            ret += "Percent: " + str(data[0]) + "\n"
+            ret += "Volt: " + str(data[1]/1000) + "\n"
+        return super().__str__(ret)
 
     
 

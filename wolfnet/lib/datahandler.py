@@ -30,11 +30,11 @@ class DataHandler:
         return self.encrypt(fp.create_packet())
 
 
-    def sendEncBeacon(self):
-        bp = BeaconPacket(get_node_id())
+    def sendEncBeacon(self, *args, **kwargs):
+        bp = BeaconPacket(get_node_id(), *args, **kwargs)
         return self.encrypt(bp.create_packet())
 
-    def receiverEncPacket(self, packet):
+    def receiverEncPacket(self, packet, is_sniffer=False):
         data = self.decrypt(packet)
         p = BasePacket()
         p.parse_packet(data)
@@ -47,7 +47,7 @@ class DataHandler:
             p.parse_packet(data)
 
 
-        if p.get_broadcast() or p.get_receiver() == get_node_id():
+        if p.get_broadcast() or p.get_receiver() == get_node_id() or is_sniffer:
             return p
         
         # packet not for us
