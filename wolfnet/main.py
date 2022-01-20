@@ -8,8 +8,10 @@ Jens Dede <jd@comnets.uni-bremen.de>
 from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink
 from machine import Pin, SPI, I2C
 import utime as time
+import ubinascii
 from config import encrypt_config, lora_parameters, device_config
 import datahandler
+import batteryhandler
 
 from sx127x import SX127x
 import ssd1306
@@ -25,6 +27,8 @@ irq_last_trigger = get_millis()
 
 display_off_time = time.time() + SHUTDOWN_DISPLAY_AFTER
 display_is_on = True
+
+num_received_packets = 0
 
 def irq_handler(pin):
     global irq_triggered
@@ -82,6 +86,14 @@ dh = datahandler.DataHandler(encrypt_config["aes_key"])
 
 nodeCfg = get_this_config()
 
+bh = None
+
+if "battery_type" in nodeCfg:
+    if nodeCfg["battery_type"] == "max17043":
+        bh = batteryhandler.Max17043BatteryStatus(i2c)
+    elif nodeCfg["battery_type"] == "analog":
+        bh = batteryhandler.AnalogBatteryStatus()
+
 oled_changed = True
 pkg_sent = 0
 
@@ -120,6 +132,11 @@ while True:
     if time.time() > next_beacon_time and "beacon_interval" in nodeCfg:
         print("Sending out beacon")
         bindata = dh.sendEncBeacon()
+        if bh:
+            bat_data = bh.do_read()
+            print("Attaching battery status to beacon:", bat_data)
+            bat = (int(bat_data[0]), int(bat_data[1]*1000))
+            bindata = dh.sendEncBeacon(bat=bat)
         lora.println(bindata)
         jitter = 0
         if "beacon_jitter" in nodeCfg:
@@ -129,32 +146,46 @@ while True:
 
         print(time.time(), next_beacon_time)
 
-
     if lora.received_packet():
         payload = lora.read_payload()
-        print(payload)
+        #print(payload)
         packet = None
+        is_sniffer = False
+
+        if "is_sniffer" in nodeCfg:
+            is_sniffer = nodeCfg["is_sniffer"]
+
         try:
-            packet = dh.receiverEncPacket(bytearray(payload))
+            packet = dh.receiverEncPacket(bytearray(payload), is_sniffer)
         except:
             print("Packet parsing failed. Not for us?")
         if packet:
             packet.set_rssi(lora.packet_rssi())
             packet.set_snr(lora.packet_snr())
             print("Received:", packet)
-            ack = packet.create_ack()
-            if ack:
-                lora.println(dh.encrypt(ack.create_packet()))
-            if packet.get_type() == packet.TYPE_ACTOR_FLASH:
-                duration, frequency = packet.get_flash()
-                oled.text('f:' + str(frequency) + "Hz", 0, 35)
-                oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
-                uasyncio.run(blink(actor_pin, frequency, duration))
+            num_received_packets += 1
 
-            elif packet.get_type() == packet.TYPE_BEACON:
-                print("Received beacon from", packet.get_sender(), "with RSSI of ", packet.get_rssi(), "and SNR of", packet.get_snr())
-                oled.text('b:' + str(packet.get_sender()), 0, 35)
-                oled.text('r:' + str(packet.get_rssi()) + " s:" + str(packet.get_snr()), 0,45)
+            print("Total received packets:", num_received_packets)
+
+            if not is_sniffer:
+                ack = packet.create_ack()
+                if ack:
+                    lora.println(dh.encrypt(ack.create_packet()))
+                if packet.get_type() == packet.TYPE_ACTOR_FLASH:
+                    duration, frequency = packet.get_flash()
+                    oled.text('f:' + str(frequency) + "Hz", 0, 35)
+                    oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+                    uasyncio.run(blink(actor_pin, frequency, duration))
+
+                elif packet.get_type() == packet.TYPE_BEACON:
+                    print("Received beacon from", packet.get_sender(), "with RSSI of ", packet.get_rssi(), "and SNR of", packet.get_snr())
+                    oled.text('b:' + str(packet.get_sender()), 0, 35)
+                    oled.text('r:' + str(packet.get_rssi()) + " s:" + str(packet.get_snr()), 0,45)
+
+            else:
+                print("Sniffed_packet")
+                print("!{"+str(ubinascii.hexlify(payload).decode())+"}#")
+                oled.text('sp:' + str(num_received_packets), 0, 35)
             oled_changed = True
 
     if oled_changed:

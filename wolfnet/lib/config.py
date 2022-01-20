@@ -86,10 +86,17 @@ nodes_config = {
         "protection_time" : 60000, # 60000 ms = 60 sec
         "beacon_interval" : 120, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type" : "max17043",
     },
     "1892008357" : {
         "is_sender" : False,
         "beacon_interval" : 120, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+    },
+    "802963433": {
+        "is_sender" : False,
+        "is_sniffer" : True,
+        "beacon_interval" : 120,
+
     }
 }
