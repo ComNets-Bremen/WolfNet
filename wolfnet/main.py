@@ -134,9 +134,10 @@ while True:
         bindata = dh.sendEncBeacon()
         if bh:
             bat_data = bh.do_read()
-            print("Attaching battery status to beacon:", bat_data)
-            bat = (int(bat_data[0]), int(bat_data[1]*1000))
-            bindata = dh.sendEncBeacon(bat=bat)
+            if bat_data:
+                print("Attaching battery status to beacon:", bat_data)
+                bat = (int(bat_data[0]), int(bat_data[1]*1000))
+                bindata = dh.sendEncBeacon(bat=bat)
         lora.println(bindata)
         jitter = 0
         if "beacon_jitter" in nodeCfg:

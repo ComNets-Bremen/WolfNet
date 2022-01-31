@@ -80,7 +80,7 @@ encrypt_config = {
 nodes_config = {
     "2276286798" : {
         "is_sender" : True,
-        "flash_node" : 1892008357,
+        "flash_node" : 4291548233,
         "flash_frequency" : 20, # Hz
         "flash_duration"  : 4000, # 4000 ms = 4 sec
         "protection_time" : 60000, # 60000 ms = 60 sec
@@ -88,15 +88,14 @@ nodes_config = {
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "max17043",
     },
-    "1892008357" : {
+    "4291548233" : {
         "is_sender" : False,
         "beacon_interval" : 120, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type" : "analog", # Read battery from Pin 36
     },
-    "802963433": {
+    "1892008357": {
         "is_sender" : False,
         "is_sniffer" : True,
-        "beacon_interval" : 120,
-
     }
 }

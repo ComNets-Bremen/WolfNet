@@ -29,7 +29,33 @@ class AnalogBatteryStatus:
 
     def do_read(self):
         if self.adc:
-            return self.adc.read() * 3.6 / 4095
+            # Voltage divider by 2.7kOhm and 15kOhm
+            volt_meas = self.adc.read() * 3.6 / 4095
+            bat_volt = volt_meas * (2.7+15) / 2.7
+            bat_percent = 0
+            if bat_volt > 12.9:
+                bat_percent = 100
+            elif bat_volt > 12.8:
+                bat_volt = 90
+            elif bat_volt > 12.6:
+                bat_volt = 80
+            elif bat_volt > 12.5:
+                bat_volt = 70
+            elif bat_volt > 12.4:
+                bat_volt = 60
+            elif bat_volt > 12.25:
+                bat_volt = 50
+            elif bat_volt > 12.1:
+                bat_volt = 40
+            elif bat_volt > 11.9:
+                bat_volt = 30
+            elif bat_volt > 11.8:
+                bat_volt = 20
+            elif bat_volt > 11.5:
+                bat_volt = 10
+            else:
+                bat_volt = 0
+            return (bat_percent, bat_volt)
         return None
 
 class Max17043BatteryStatus:
