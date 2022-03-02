@@ -4,7 +4,7 @@ Main wolf application
 Jens Dede <jd@comnets.uni-bremen.de>
 
 """
-
+import sys
 from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink
 from machine import Pin, SPI, I2C
 import utime as time
@@ -66,7 +66,12 @@ device_spi = SPI(baudrate = 10000000,
         mosi = Pin(device_config['mosi'], Pin.OUT, Pin.PULL_UP),
         miso = Pin(device_config['miso'], Pin.IN, Pin.PULL_UP))
 
-lora = SX127x(device_spi, pins=device_config, parameters=lora_parameters)
+lora = None
+try:
+    lora = SX127x(device_spi, pins=device_config, parameters=lora_parameters)
+except:
+    print("Error init LoRa radio. Restart and try again.")
+    sys.exit() # Soft reboot
 
 actor_pin = Pin(12, Pin.OUT)
 actor_pin.value(1)
