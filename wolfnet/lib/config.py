@@ -37,7 +37,7 @@ device_config = {
 }
 """
 
-#Heltec LoRa module
+# Heltec LoRa module
 device_config = {
     'miso':19,
     'mosi':27,
@@ -78,7 +78,7 @@ encrypt_config = {
 
 # Per node config parameters, stored by node id
 nodes_config = {
-    "2276286798" : {
+    "2276286798" : { # PIR sensor
         "is_sender" : True,
         "flash_node" : 4291548233,
         "flash_frequency" : 20, # Hz
@@ -88,14 +88,31 @@ nodes_config = {
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "max17043",
     },
-    "4291548233" : {
+    "4291548233" : { # Flash actor
         "is_sender" : False,
         "beacon_interval" : 120, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "analog", # Read battery from Pin 36
     },
-    "1892008357": {
+    "1892008357": { # Sniffer
         "is_sender" : False,
         "is_sniffer" : True,
-    }
+    },
+    "510366793" : { # Buzzer
+        "is_sender" : True,
+        "is_sniffer" : False,
+        "battery_type" : "max17043",
+        "flash_node" : 1054058,
+        "flash_frequency" : 20, # Hz
+        "flash_duration"  : 4000, # 4000 ms = 4 sec
+        "protection_time" : 10000, # 60000 ms = 60 sec
+        "beacon_interval" : 120, # 120 seconds
+        "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+    },
+    "1054058" : { # Ultrasonic actor
+        "is_sender" : False,
+        "beacon_interval" : 120, # 120 seconds
+        "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type" : "analog", # Read battery from Pin 36
+    },
 }
