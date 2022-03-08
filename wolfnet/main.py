@@ -5,8 +5,8 @@ Jens Dede <jd@comnets.uni-bremen.de>
 
 """
 import sys
-from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink
-from machine import Pin, SPI, I2C
+from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink, actor_on
+from machine import Pin, SPI, I2C, Timer
 import utime as time
 import ubinascii
 from config import encrypt_config, lora_parameters, device_config
@@ -20,20 +20,44 @@ import uasyncio
 
 import random
 
+
 SHUTDOWN_DISPLAY_AFTER = 120
+DEBOUNCE_TIME = 100 # ms
 
 irq_triggered = False
+irq_debounce_timer = get_millis()
 irq_last_trigger = get_millis()
 
 display_off_time = time.time() + SHUTDOWN_DISPLAY_AFTER
 display_is_on = True
 
+actor_timer = None
+actor_timer_channel = None
+actor_timer_timeout = 0
+
 num_received_packets = 0
 
 def irq_handler(pin):
-    global irq_triggered
-    if pin.value():
+    global irq_triggered, irq_debounce_timer
+    if pin.value() and irq_debounce_timer + DEBOUNCE_TIME < get_millis():
         irq_triggered = True
+        irq_debounce_timer = get_millis()
+
+def flash_timer_handler(timer):
+    global actor_pin, actor_timer_timeout, actor_timer
+    if actor_timer_timeout < get_millis():
+        timer.deinit()
+        actor_pin.value(1)
+        actor_timer = None
+    else:
+        actor_pin.value(not actor_pin.value())
+
+def ultrasonic_timer_handler(timer):
+    global actor_pin, actor_timer_timeout, actor_timer
+    timer.deinit()
+    actor_pin.value(1)
+    actor_timer = None
+
 
 def button_handler(pin):
     global display_off_time
@@ -122,7 +146,7 @@ while True:
             irq_last_trigger = get_millis()
             if nodeCfg and "is_sender" in nodeCfg and nodeCfg["is_sender"]:
                 print("Sending alarm message")
-                bindata = dh.sendEncFlash(nodeCfg["flash_node"], nodeCfg["flash_duration"], nodeCfg["flash_frequency"])
+                bindata = dh.sendEncActor(nodeCfg)
                 lora.println(bindata)
                 pkg_sent += 1
 
@@ -177,11 +201,40 @@ while True:
                 ack = packet.create_ack()
                 if ack:
                     lora.println(dh.encrypt(ack.create_packet()))
-                if packet.get_type() == packet.TYPE_ACTOR_FLASH:
-                    duration, frequency = packet.get_flash()
-                    oled.text('f:' + str(frequency) + "Hz", 0, 35)
-                    oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
-                    uasyncio.run(blink(actor_pin, frequency, duration))
+                if packet.get_type() == packet.TYPE_ACTOR_UNIVERSAL and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_FLASH:
+                    duration, frequency, can_cancel = packet.get_params()
+                    if actor_timer != None and can_cancel:
+                        try:
+                            actor_timer.deinit()
+                            actor_timer = None
+                            actor_pin.value(1)
+                            print("Cancelled Timer")
+                        except:
+                            pass
+                    else:
+                        oled.text('f:' + str(frequency) + "Hz", 0, 35)
+                        oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+
+                        actor_timer = Timer(3)
+                        actor_timer_timeout = get_millis() + duration
+                        actor_timer.init(mode=Timer.PERIODIC, period=int(1.0/frequency/2.0*1000.0), callback=flash_timer_handler)
+
+                elif packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_UNIVERSAL) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_ULTRASONIC:
+                    duration, _, can_cancel = packet.get_params()
+                    if actor_timer != None and can_cancel:
+                        try:
+                            actor_timer.deinit()
+                            actor_timer = None
+                            actor_pin.value(1)
+                            print("Cancelled timer")
+                        except:
+                            pass
+                    else:
+                        oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+                        actor_timer = Timer(3)
+                        actor_timer_timeout = get_millis() + duration
+                        actor_timer.init(mode=Timer.ONE_SHOT, period=duration, callback=ultrasonic_timer_handler)
+                        actor_pin.value(0)
 
                 elif packet.get_type() == packet.TYPE_BEACON:
                     print("Received beacon from", packet.get_sender(), "with RSSI of ", packet.get_rssi(), "and SNR of", packet.get_snr())

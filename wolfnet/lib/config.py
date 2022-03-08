@@ -1,3 +1,4 @@
+import packets
 # Copyright 2020 LeMaRiva|tech lemariva.com
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -80,17 +81,20 @@ encrypt_config = {
 nodes_config = {
     "2276286798" : { # PIR sensor
         "is_sender" : True,
-        "flash_node" : 4291548233,
-        "flash_frequency" : 20, # Hz
-        "flash_duration"  : 4000, # 4000 ms = 4 sec
+        "actor_node" : None, # Either address or none to Broadcast
+        "msg_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
+        "action_frequency" : 20, # Hz
+        "action_duration"  : 4000, # 4000 ms = 4 sec
+        "action_cancel_previous" : False,
         "protection_time" : 60000, # 60000 ms = 60 sec
-        "beacon_interval" : 120, # 120 seconds
+        "beacon_interval" : 240, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "max17043",
     },
     "4291548233" : { # Flash actor
         "is_sender" : False,
-        "beacon_interval" : 120, # 120 seconds
+        "receiver_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
+        "beacon_interval" : 240, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "analog", # Read battery from Pin 36
     },
@@ -100,19 +104,24 @@ nodes_config = {
     },
     "510366793" : { # Buzzer
         "is_sender" : True,
+        "msg_type" : packets.BasePacket.TYPE_ACTOR_ULTRASONIC,
         "is_sniffer" : False,
         "battery_type" : "max17043",
-        "flash_node" : 1054058,
-        "flash_frequency" : 20, # Hz
-        "flash_duration"  : 4000, # 4000 ms = 4 sec
-        "protection_time" : 10000, # 60000 ms = 60 sec
-        "beacon_interval" : 120, # 120 seconds
+        "actor_node" : None,
+        "action_cancel_previous" : True,
+        "action_frequency" : 25, # Hz (if applicable)
+        "action_duration"  : 10000, # 10000 ms = 10 sec
+        "protection_time" : 1000, # 1000 ms = 1 sec
+        "beacon_interval" : 240, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
     },
     "1054058" : { # Ultrasonic actor
         "is_sender" : False,
+        "receiver_type" : packets.BasePacket.TYPE_ACTOR_ULTRASONIC,
         "beacon_interval" : 120, # 120 seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "analog", # Read battery from Pin 36
+        "action_cancel_previous" : True,
+        "action_duration"  : 10000, # 10000 ms = 10 sec
     },
 }
