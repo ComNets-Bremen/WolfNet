@@ -17,6 +17,7 @@ class BasePacket:
     TYPE_STATUS     = 0x2
     TYPE_CONFIG     = 0x3
     TYPE_BEACON     = 0x4
+    TYPE_ACTOR_UNIVERSAL = 0x10
     TYPE_ACTOR_FLASH = 0x11
     TYPE_ACTOR_ULTRASONIC = 0x21
     
@@ -79,7 +80,7 @@ class BasePacket:
         return self.receiver
 
     def set_receiver(self, receiver):
-        self.set_broadcast(False)
+        self.set_broadcast(receiver==None)
         self.receiver = receiver
 
     def get_type(self):
@@ -202,27 +203,29 @@ class BasePacket:
         
 
         
-# This type is controlling the flicker / flash light
-class FlashPacket(BasePacket):
+# Actor packet type
+class UniversalPacket(BasePacket):
     def __init__(self, sender = None):
         super().__init__(sender)
-        self.msg_type = self.TYPE_ACTOR_FLASH
+        self.msg_type = self.TYPE_ACTOR_UNIVERSAL
 
     def __str__(self):
-        data = self.get_flash()
+        data = self.get_params()
         ret = ""
         ret += "Duration: " + str(data[0]) + "\n"
         ret += "Frequency: " + str(data[1]) + "\n"
+        ret += "Cancel prev: " + str(data[2]) + "\n"
         return super().__str__(ret)
 
-    def set_flash(self, duration, frequency):
-        self.data = struct.pack("!II", duration, frequency)
+    def set_params(self, duration, frequency, cancel_prev):
+        self.data = struct.pack("!IIb", duration, frequency, bool(cancel_prev))
 
-    def get_flash(self):
-        if len(self.data) == 8:
-            return struct.unpack("!II", self.data)
+    def get_params(self):
+        if len(self.data) == 9:
+            return struct.unpack("!IIb", self.data)
         else:
             raise ValueError("Wong Packet format")
+
 
 # The ACK packet type
 class AckPacket(BasePacket):

@@ -1,6 +1,6 @@
 import mpyaes
 
-from packets import FlashPacket, BasePacket, BeaconPacket
+from packets import UniversalPacket, BasePacket, BeaconPacket
 from utils import get_node_id
 
 class DataHandler:
@@ -22,12 +22,12 @@ class DataHandler:
         cipher = mpyaes.new(self.key, mpyaes.MODE_CBC, iv)
         return cipher.decrypt(data[16:])
 
-
-    def sendEncFlash(self, receiver, duration, frequency):
-        fp = FlashPacket(get_node_id())
-        fp.set_flash(duration, frequency)
-        fp.set_receiver(receiver)
-        return self.encrypt(fp.create_packet())
+    def sendEncActor(self, nodeCfg):
+        pkg = None
+        pkg = UniversalPacket(get_node_id())
+        pkg.set_params(nodeCfg["action_duration"], nodeCfg["action_frequency"], nodeCfg["action_cancel_previous"])
+        pkg.set_receiver(nodeCfg["actor_node"])
+        return self.encrypt(pkg.create_packet())
 
 
     def sendEncBeacon(self, *args, **kwargs):
@@ -38,8 +38,9 @@ class DataHandler:
         data = self.decrypt(packet)
         p = BasePacket()
         p.parse_packet(data)
-        if p.get_type() == BasePacket.TYPE_ACTOR_FLASH:
-            p = FlashPacket()
+
+        if p.get_type() == BasePacket.TYPE_ACTOR_UNIVERSAL:
+            p = UniversalPacket()
             p.parse_packet(data)
 
         elif p.get_type() == BasePacket.TYPE_BEACON:
