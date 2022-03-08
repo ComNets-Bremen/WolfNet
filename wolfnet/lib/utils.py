@@ -41,6 +41,13 @@ def get_this_config():
     return None
 
 
+def blink2(pin, freq, duration):
+    loop = uasyncio.new_event_loop()
+    uasyncio.set_event_loop(loop)
+
+    loop.run_until_complete(blink(pin, freq, duration))
+    loop.close()
+
 async def blink(pin, freq, duration):
     on_off_time = int(1.0/freq/2.0*1000.0)
     end_time = get_millis() + duration
@@ -49,3 +56,8 @@ async def blink(pin, freq, duration):
         pin.value(0)
         await uasyncio.sleep_ms(on_off_time)
         pin.value(1)
+
+async def actor_on(pin, duration):
+    pin.value(0)
+    await uasyncio.sleep_ms(duration)
+    pin.value(1)
