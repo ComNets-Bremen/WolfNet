@@ -87,16 +87,16 @@ nodes_config = {
         "action_duration"  : 4000, # 4000 ms = 4 sec
         "action_cancel_previous" : False,
         "protection_time" : 60000, # 60000 ms = 60 sec
-        "beacon_interval" : 240, # 120 seconds
+        "beacon_interval" : 240, # seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type" : "max17043",
     },
     "4291548233" : { # Flash actor
         "is_sender" : False,
         "receiver_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
-        "beacon_interval" : 240, # 120 seconds
+        "beacon_interval" : 240, # seconds
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
-        "battery_type" : "analog", # Read battery from Pin 36
+        "battery_type" : "analog", # Read battery from Pin 36, hardcoded
     },
     "1892008357": { # Sniffer
         "is_sender" : False,
