@@ -36,23 +36,23 @@ class AnalogBatteryStatus:
             if bat_volt > 12.9:
                 bat_percent = 100
             elif bat_volt > 12.8:
-                bat_volt = 90
+                bat_percent = 90
             elif bat_volt > 12.6:
-                bat_volt = 80
+                bat_percent = 80
             elif bat_volt > 12.5:
-                bat_volt = 70
+                bat_percent = 70
             elif bat_volt > 12.4:
-                bat_volt = 60
+                bat_percent = 60
             elif bat_volt > 12.25:
-                bat_volt = 50
+                bat_percent = 50
             elif bat_volt > 12.1:
-                bat_volt = 40
+                bat_percent = 40
             elif bat_volt > 11.9:
-                bat_volt = 30
+                bat_percent = 30
             elif bat_volt > 11.8:
-                bat_volt = 20
+                bat_percent = 20
             elif bat_volt > 11.5:
-                bat_volt = 10
+                bat_percent = 10
             else:
                 bat_volt = 0
             return (bat_percent, bat_volt)
@@ -73,4 +73,3 @@ class Max17043BatteryStatus:
         if self.max17043:
             return (self.max17043.getSoc(), self.max17043.getVCell())
         return None
-
