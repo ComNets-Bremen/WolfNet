@@ -48,6 +48,7 @@ def flash_timer_handler(timer):
     if actor_timer_timeout < get_millis():
         timer.deinit()
         actor_pin.value(1)
+        signal_status(0)
         actor_timer = None
     else:
         actor_pin.value(not actor_pin.value())
@@ -56,12 +57,18 @@ def ultrasonic_timer_handler(timer):
     global actor_pin, actor_timer_timeout, actor_timer
     timer.deinit()
     actor_pin.value(1)
+    signal_status(0)
     actor_timer = None
 
 
 def button_handler(pin):
     global display_off_time
     display_off_time = time.time() + SHUTDOWN_DISPLAY_AFTER
+
+def signal_status(onoff):
+    global status_led
+    if status_led is not None:
+        status_led.value(onoff)
 
 # Heltec LoRa 32 with OLED Display
 oled_width = 128
@@ -80,11 +87,11 @@ i2c = I2C(scl=i2c_scl, sda=i2c_sda)
 # Create the display object
 oled = ssd1306.SSD1306_I2C(oled_width, oled_height, i2c)
 oled.fill(0)
-  
+
 #oled.line(0, 0, 50, 25, 1)
 oled.show()
 
-device_spi = SPI(baudrate = 10000000, 
+device_spi = SPI(baudrate = 10000000,
         polarity = 0, phase = 0, bits = 8, firstbit = SPI.MSB,
         sck = Pin(device_config['sck'], Pin.OUT, Pin.PULL_DOWN),
         mosi = Pin(device_config['mosi'], Pin.OUT, Pin.PULL_UP),
@@ -99,12 +106,12 @@ except:
 
 actor_pin = Pin(12, Pin.OUT)
 actor_pin.value(1)
-irq_pin = Pin(13, Pin.IN, Pin.PULL_DOWN)
-irq_pin.irq(irq_handler)
 
+# On Board LED
 led = Pin(25, Pin.OUT)
 led.value(0)
 
+# On Board button
 button = Pin(0, Pin.IN)
 button.irq(button_handler)
 
@@ -114,6 +121,22 @@ print("This is node HEX: " + str(get_node_id(True)))
 dh = datahandler.DataHandler(encrypt_config["aes_key"])
 
 nodeCfg = get_this_config()
+
+irq_pin = None
+if "gpio_button_irq" in nodeCfg:
+    irq_pin = Pin(nodeCfg["gpio_button_irq"], Pin.IN, Pin.PULL_DOWN)
+    irq_pin.irq(irq_handler)
+
+status_led = None
+if "gpio_led_status" in nodeCfg:
+    status_led = Pin(nodeCfg["gpio_led_status"], Pin.OUT)
+    status_led.value(0)
+
+
+if nodeCfg == None:
+    print("Node not configured. Please update config.py")
+    while(True):
+        pass
 
 bh = None
 
@@ -157,7 +180,7 @@ while True:
 
         irq_triggered = False
 
-    
+
     if time.time() > next_beacon_time and "beacon_interval" in nodeCfg:
         print("Sending out beacon")
         bindata = dh.sendEncBeacon()
@@ -208,6 +231,7 @@ while True:
                             actor_timer.deinit()
                             actor_timer = None
                             actor_pin.value(1)
+                            signal_status(0)
                             print("Cancelled Timer")
                         except:
                             pass
@@ -226,6 +250,7 @@ while True:
                             actor_timer.deinit()
                             actor_timer = None
                             actor_pin.value(1)
+                            signal_status(0)
                             print("Cancelled timer")
                         except:
                             pass
@@ -235,6 +260,7 @@ while True:
                         actor_timer_timeout = get_millis() + duration
                         actor_timer.init(mode=Timer.ONE_SHOT, period=duration, callback=ultrasonic_timer_handler)
                         actor_pin.value(0)
+                        signal_status(1)
 
                 elif packet.get_type() == packet.TYPE_BEACON:
                     print("Received beacon from", packet.get_sender(), "with RSSI of ", packet.get_rssi(), "and SNR of", packet.get_snr())
