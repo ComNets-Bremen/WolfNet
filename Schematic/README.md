@@ -1,0 +1,1 @@
+Source model: https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series/tree/master/Kicad5_lib_footprint/Heltec_wifi_LoRa_V1

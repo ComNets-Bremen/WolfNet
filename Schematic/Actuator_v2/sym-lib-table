@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name "WolfNetlibs")(type "Legacy")(uri "${KIPRJMOD}/libs/heltec_wifi_lora_v1.lib")(options "")(descr ""))
+)

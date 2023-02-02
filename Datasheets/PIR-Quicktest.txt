@@ -1,0 +1,21 @@
+Test des PIR-Sensors.
+Hohe Sensitivität
+
+Test Person aufrecht stehen, direkt vor der Linse (rechtwinklig)
+
+Stehend bis 9m Entfernung getestet, positive Auslösung
+
+Sensor um 45 Grad gedreht:
+Auslösung bis ca. 2 - 2,5m positiv.
+
+Test mit Gehölz:
+
+Weihnachtsbaum in 2m Abstand diagonal durch das Feld gezogen: Keine Auslösung.
+
+Fazit:
+
+Löst am Besten aus, wenn eine Wärmequelle direkt, also im rechten Winkel, vor der Linse passiert.
+Scheint bei kalten Gegenständen (Blättern etc.) nicht auszulösen.
+Getestet bei ca. 6 Grad Außentemperatur, kein Regen, Kein direktes Sonnenlicht.
+
+Frage. Was passiert bei Sonnenschein?

@@ -1,0 +1,38 @@
+Bleiakku:
+12V
+Spannungen:
+
+Leerlauf nach idealerweise 20 Minuten Ruhe:
+11,9 (40%) - 12,7 (100%)
+
+Last
+9,0 - 12,00
+
+Entladeschlussspannung: 1,6-1,8V pro Zelle / 9,6 - 10,8V
+Ladespannung: 13,8 ... 14V
+
+
+ESP32:
+Do not use ADC2 if WiFi is used
+Vin ADC: 2,5V in max (more -> inaccurate)
+
+ADC_ATTEN_DB_11: Range 150 mV ~ 2450 mV
+12 Bit ADC
+
+Dout = raw reading
+
+Vout = Dout * Vmax / Dmax
+
+Vout = raw * 2450 / 4095
+
+https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/adc.html
+
+Voltage divider:
+
+R1, R2, Vin über R2
+R1 = 15kOhm
+R2 = 2,5kOhm
+
+15 VBat -> 2,1428 V Vin
+Faktor 7
+Kondensator parallel zu Vin
