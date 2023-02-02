@@ -105,7 +105,7 @@ nodes_config = {
     },
     "510366793" : { # Buzzer
         "is_sender" : True,
-        "msg_type" : packets.BasePacket.TYPE_ACTOR_ULTRASONIC,
+        "msg_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
         "is_sniffer" : False,
         "battery_type" : "max17043",
         "actor_node" : None,
