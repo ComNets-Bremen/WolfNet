@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "Heltec_Wifi_Lora_v1")(type "KiCad")(uri "${KIPRJMOD}/Heltec_Wifi_Lora_v1.pretty")(options "")(descr ""))
+)
