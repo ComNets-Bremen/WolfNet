@@ -117,6 +117,21 @@ nodes_config = {
         "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
         "gpio_button_irq" : 13, # IRQ on pin 13
     },
+
+    "2628889781" : { # Buzzer 2 2023-04
+        "is_sender" : True,
+        "msg_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
+        "is_sniffer" : False,
+        "battery_type" : "max17043",
+        "actor_node" : None,
+        "action_cancel_previous" : True,
+        "action_frequency" : 25, # Hz (if applicable)
+        "action_duration"  : 10000, # 10000 ms = 10 sec
+        "protection_time" : 1000, # 1000 ms = 1 sec
+        "beacon_interval" : 240, # 120 seconds
+        "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+        "gpio_button_irq" : 13, # IRQ on pin 13
+    },
     "1054058" : { # Ultrasonic actor
         "is_sender" : False,
         "receiver_type" : packets.BasePacket.TYPE_ACTOR_ULTRASONIC,
@@ -136,4 +151,24 @@ nodes_config = {
             "action_duration"  : 10000, # 10000 ms = 10 sec
             "gpio_led_status" : 13, # Status LED on pin 13
         },
-}
+        "2308316059" : { # Flash Actor 2, 2023-04
+            "is_sender" : False,
+            "receiver_type" : packets.BasePacket.TYPE_ACTOR_FLASH,
+            "beacon_interval" : 120, # 120 seconds
+            "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+            "battery_type" : "analog", # Read battery from Pin 36
+            "action_cancel_previous" : True,
+            "action_duration"  : 10000, # 10000 ms = 10 sec
+            "gpio_led_status" : 13, # Status LED on pin 13
+        },
+            "3567154165" : { # Ultrasonic actor, 2023-04
+            "is_sender" : False,
+            "receiver_type" : packets.BasePacket.TYPE_ACTOR_ULTRASONIC,
+            "beacon_interval" : 120, # 120 seconds
+            "beacon_jitter" : 10,    # seconds, will vary the above value by +- 10 seconds
+            "battery_type" : "analog", # Read battery from Pin 36
+            "action_cancel_previous" : True,
+            "action_duration"  : 10000, # 10000 ms = 10 sec
+            "gpio_led_status" : 13, # Status LED on pin 13
+    },
+    }

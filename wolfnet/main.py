@@ -68,6 +68,7 @@ def button_handler(pin):
 def signal_status(onoff):
     global status_led
     if status_led is not None:
+        print("New LED status", onoff)
         status_led.value(onoff)
 
 # Heltec LoRa 32 with OLED Display
@@ -129,6 +130,7 @@ if "gpio_button_irq" in nodeCfg:
 
 status_led = None
 if "gpio_led_status" in nodeCfg:
+    print("Using status LED on pin", nodeCfg["gpio_led_status"])
     status_led = Pin(nodeCfg["gpio_led_status"], Pin.OUT)
     status_led.value(0)
 
@@ -224,7 +226,8 @@ while True:
                 ack = packet.create_ack()
                 if ack:
                     lora.println(dh.encrypt(ack.create_packet()))
-                if packet.get_type() == packet.TYPE_ACTOR_UNIVERSAL and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_FLASH:
+                if packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_FLASH) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_FLASH:
+                    print("Acting as flash actor")
                     duration, frequency, can_cancel = packet.get_params()
                     if actor_timer != None and can_cancel:
                         try:
@@ -238,12 +241,14 @@ while True:
                     else:
                         oled.text('f:' + str(frequency) + "Hz", 0, 35)
                         oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+                        signal_status(1)
 
                         actor_timer = Timer(3)
                         actor_timer_timeout = get_millis() + duration
                         actor_timer.init(mode=Timer.PERIODIC, period=int(1.0/frequency/2.0*1000.0), callback=flash_timer_handler)
 
-                elif packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_UNIVERSAL) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_ULTRASONIC:
+                elif packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_ULTRASONIC) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_ULTRASONIC:
+                    print("Acting as ultrasound actor")
                     duration, _, can_cancel = packet.get_params()
                     if actor_timer != None and can_cancel:
                         try:
