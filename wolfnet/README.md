@@ -5,7 +5,6 @@ Licence for AES lib: https://github.com/iyassou/mpyaes MIT license
 
 Idea of basic data packet:
 
-        '''
         VERSION uint_8
             0x0 init version
         SEQUENCE uint_16
@@ -27,7 +26,6 @@ Idea of basic data packet:
         DATALEN uint_8
         N data bytes
         CRC uint_32
-        '''
 
 
 
