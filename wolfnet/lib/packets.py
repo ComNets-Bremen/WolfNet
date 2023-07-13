@@ -17,10 +17,7 @@ class BasePacket:
     TYPE_STATUS     = 0x2
     TYPE_CONFIG     = 0x3
     TYPE_BEACON     = 0x4
-    TYPE_ACTOR_UNIVERSAL = 0x10
-    TYPE_ACTOR_FLASH = 0x11
-    TYPE_ACTOR_ULTRASONIC = 0x21
-    
+    TYPE_ACTOR_UNIVERSAL = 0x10    
 
     BIT_BROADCAST   = 0
     BIT_IS_ACK      = 1
@@ -212,17 +209,15 @@ class UniversalPacket(BasePacket):
     def __str__(self):
         data = self.get_params()
         ret = ""
-        ret += "Duration: " + str(data[0]) + "\n"
-        ret += "Frequency: " + str(data[1]) + "\n"
-        ret += "Cancel prev: " + str(data[2]) + "\n"
+        ret += "Cancel prev: " + str(data[0]) + "\n"
         return super().__str__(ret)
 
-    def set_params(self, duration, frequency, cancel_prev):
-        self.data = struct.pack("!IIb", duration, frequency, bool(cancel_prev))
+    def set_params(self, cancel_prev):
+        self.data = struct.pack("!b", bool(cancel_prev))
 
     def get_params(self):
-        if len(self.data) == 9:
-            return struct.unpack("!IIb", self.data)
+        if len(self.data) == 1:
+            return struct.unpack("!b", self.data)
         else:
             raise ValueError("Wong Packet format")
 
@@ -283,12 +278,10 @@ if __name__ == "__main__":
         print(p2)
 
 
-    f = FlashPacket(321)
-    f.set_flash(1000, 5)
-    f.set_receiver(2727772)
+    f = UniversalPacket(321)
     f.set_ack_request()
     bp = f.create_packet()
-    f2 = FlashPacket()
+    f2 = UniversalPacket()
     f2.parse_packet(bp)
     print(f2)
 

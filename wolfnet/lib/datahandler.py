@@ -25,9 +25,11 @@ class DataHandler:
     def sendEncActor(self, nodeCfg):
         pkg = None
         pkg = UniversalPacket(get_node_id())
-        pkg.set_params(nodeCfg["action_duration"], nodeCfg["action_frequency"], nodeCfg["action_cancel_previous"])
+        pkg.set_params(nodeCfg["action_cancel_previous"])
         pkg.set_receiver(nodeCfg["actor_node"])
-        return self.encrypt(pkg.create_packet())
+        if "use_ack" in nodeCfg and nodeCfg["use_ack"] and not pkg.get_broadcast():
+            pkg.set_ack_request()
+        return (self.encrypt(pkg.create_packet()), pkg.get_sequence(), pkg.get_ack_request())
 
 
     def sendEncBeacon(self, *args, **kwargs):

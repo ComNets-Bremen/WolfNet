@@ -9,7 +9,7 @@ from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, bl
 from machine import Pin, SPI, I2C, Timer
 import utime as time
 import ubinascii
-from config import encrypt_config, lora_parameters, device_config
+from config import encrypt_config, lora_parameters, device_config, node_params
 import datahandler
 import batteryhandler
 
@@ -18,7 +18,13 @@ import ssd1306
 
 import uasyncio
 
+from nodetype import NodeTypes as NT
+
 import random
+
+
+ACK_RETRIES = 3
+ACK_WAIT    = 1000 # ms
 
 
 SHUTDOWN_DISPLAY_AFTER = 120
@@ -148,10 +154,24 @@ if "battery_type" in nodeCfg:
     elif nodeCfg["battery_type"] == "analog":
         bh = batteryhandler.AnalogBatteryStatus()
 
+# TODO: Disable Device if Battery is too low
+
 oled_changed = True
 pkg_sent = 0
 
 next_beacon_time = time.time()
+
+node_config = None
+
+if "receiver_type" in nodeCfg:
+    node_config = node_params[nodeCfg["receiver_type"]]
+    print("Node config", node_config)
+
+
+packets_waiting_ack = []
+dedup_list = []
+
+last_event_start = 0
 
 while True:
     if display_is_on and display_off_time < time.time():
@@ -171,8 +191,10 @@ while True:
             irq_last_trigger = get_millis()
             if nodeCfg and "is_sender" in nodeCfg and nodeCfg["is_sender"]:
                 print("Sending alarm message")
-                bindata = dh.sendEncActor(nodeCfg)
+                (bindata, seq, ack) = dh.sendEncActor(nodeCfg)
                 lora.println(bindata)
+                if ack:
+                    packets_waiting_ack.append((bindata, seq, get_millis(), 0))
                 pkg_sent += 1
 
                 oled.text("#TX: " + str(pkg_sent), 0, 55)
@@ -224,53 +246,97 @@ while True:
 
             if not is_sniffer:
                 ack = packet.create_ack()
+
                 if ack:
-                    lora.println(dh.encrypt(ack.create_packet()))
-                if packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_FLASH) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_FLASH:
-                    print("Acting as flash actor")
-                    duration, frequency, can_cancel = packet.get_params()
-                    if actor_timer != None and can_cancel:
-                        try:
-                            actor_timer.deinit()
-                            actor_timer = None
-                            actor_pin.value(1)
-                            signal_status(0)
-                            print("Cancelled Timer")
-                        except:
-                            pass
-                    else:
-                        oled.text('f:' + str(frequency) + "Hz", 0, 35)
-                        oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
-                        signal_status(1)
+                    lora.println(dh.encrypt(ack))
 
-                        actor_timer = Timer(3)
-                        actor_timer_timeout = get_millis() + duration
-                        actor_timer.init(mode=Timer.PERIODIC, period=int(1.0/frequency/2.0*1000.0), callback=flash_timer_handler)
 
-                elif packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, packet.TYPE_ACTOR_ULTRASONIC) and not nodeCfg["is_sender"] and nodeCfg["receiver_type"] == packet.TYPE_ACTOR_ULTRASONIC:
-                    print("Acting as ultrasound actor")
-                    duration, _, can_cancel = packet.get_params()
-                    if actor_timer != None and can_cancel:
-                        try:
-                            actor_timer.deinit()
-                            actor_timer = None
-                            actor_pin.value(1)
-                            signal_status(0)
-                            print("Cancelled timer")
-                        except:
-                            pass
+                current_packet_is_dup = False
+                if packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, ) and not nodeCfg["is_sender"]:
+                    # remove duplicates
+                    for item in dedup_list:
+                        if item[0] == packet.get_sequence() and item[1] == packet.get_sender():
+                            current_packet_is_dup = True
+                            print("DUP")
+
+                    dedup_list.append((packet.get_sequence(), packet.get_sender(), get_millis()))
+
+
+
+                if packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, ) and not nodeCfg["is_sender"] and not current_packet_is_dup:
+                    if last_event_start + (node_config["block_time"] / 1000) > time.time():
+                        print("Inside Block time. Skipping event.", last_event_start + (node_config["block_time"]/1000)-time.time())
+                        continue
+
+                    last_event_start = time.time()
+
+                    if nodeCfg["receiver_type"] == NT.FLASH:
+                        print("Acting as flash actor")
+
+                        can_cancel = packet.get_params()[0]
+                        duration = node_config["duration"]
+                        frequency = node_config["frequency"]
+
+
+                        if actor_timer != None and can_cancel:
+                            try:
+                                actor_timer.deinit()
+                                actor_timer = None
+                                actor_pin.value(1)
+                                signal_status(0)
+                                print("Cancelled Timer")
+                            except:
+                                pass
+                        else:
+                            oled.text('f:' + str(frequency) + "Hz", 0, 35)
+                            oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+                            signal_status(1)
+
+                            actor_timer = Timer(3)
+                            actor_timer_timeout = get_millis() + duration
+                            actor_timer.init(mode=Timer.PERIODIC, period=int(1.0/frequency/2.0*1000.0), callback=flash_timer_handler)
+
+                    elif nodeCfg["receiver_type"] == NT.ULTRASOUND_CANNON:
+                        print("Acting as ultrasound actor")
+                        can_cancel = packet.get_params()[0]
+                        duration = node_config["duration"]
+
+                        if actor_timer != None and can_cancel:
+                            try:
+                                actor_timer.deinit()
+                                actor_timer = None
+                                actor_pin.value(1)
+                                signal_status(0)
+                                print("Cancelled timer")
+                            except:
+                                pass
+                        else:
+                            oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
+                            actor_timer = Timer(3)
+                            actor_timer_timeout = get_millis() + duration
+                            actor_timer.init(mode=Timer.ONE_SHOT, period=duration, callback=ultrasonic_timer_handler)
+                            actor_pin.value(0)
+                            signal_status(1)
                     else:
-                        oled.text('d:' + str(round(duration/1000.0,2)) + "s", 0,45)
-                        actor_timer = Timer(3)
-                        actor_timer_timeout = get_millis() + duration
-                        actor_timer.init(mode=Timer.ONE_SHOT, period=duration, callback=ultrasonic_timer_handler)
-                        actor_pin.value(0)
-                        signal_status(1)
+                        print("Unhandled packet type")
 
                 elif packet.get_type() == packet.TYPE_BEACON:
                     print("Received beacon from", packet.get_sender(), "with RSSI of ", packet.get_rssi(), "and SNR of", packet.get_snr())
+                    print("Battery from beacon:", packet.getBattery())
                     oled.text('b:' + str(packet.get_sender()), 0, 35)
                     oled.text('r:' + str(packet.get_rssi()) + " s:" + str(packet.get_snr()), 0,45)
+
+                elif packet.get_type() == packet.TYPE_ACK:
+                    # Remove acked packets from the list
+                    print("Got ack from", packet.get_sender(), "with seq", packet.get_sequence())
+                    reack = []
+
+                    for pkg in packets_waiting_ack:
+                        if pkg[1] == packet.get_sequence():
+                            continue
+                        reack.append(pkg)
+                    packets_waiting_ack = reack
+                    del reack
 
             else:
                 print("Sniffed_packet")
@@ -281,3 +347,35 @@ while True:
     if oled_changed:
         oled_changed = False
         oled.show()
+
+    # Handle ACKs
+    reack = []
+    for pkg in packets_waiting_ack:
+        # packets_waiting_ack.append((bindata, seq, time.time(), 0))
+        pkg = list(pkg)
+        if (pkg[2] + ACK_WAIT) < get_millis(): # retry
+            print("Retry")
+            pkg[3] = pkg[3] + 1
+            pkg[2] = get_millis()
+            pkg_sent += 1
+            lora.println(pkg[0])
+
+        if pkg[3] >= ACK_RETRIES:
+            continue
+
+        reack.append(pkg)
+
+    packets_waiting_ack = reack
+    del reack
+
+
+    # Tidy up dedup list
+    dedup = []
+    for pkg in dedup_list:
+        if pkg[-1] + (2*ACK_RETRIES*ACK_WAIT) < get_millis():
+            continue
+        else:
+            dedup.append(pkg)
+    current_packet_is_dup = dedup
+    del dedup
+    
