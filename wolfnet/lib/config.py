@@ -80,6 +80,7 @@ encrypt_config = {
 }
 
 
+# General parameters for the experiments. Used by the actuator box
 node_params = {
     NodeTypes.FLASH: {
         "frequency": 20,  # Hz
@@ -129,7 +130,7 @@ nodes_config = {
         "gpio_led_status": 13,  # Status LED on pin 13
     },
 
-    # ENDE SET 1
+    # END SET 1
 
 
 
