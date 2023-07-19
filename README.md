@@ -52,8 +52,12 @@ wolfnet
 The firmware itself which makes the sensors and the actuators communicate. It
 is a Visual Studio Code project and using the Pymakr-plugin.
 
+License
+=======
+
+The license of the code can be found in the [LICENSE](LICENSE) file.
 
 Authors
--------
+=======
 
 - Jens Dede, ComNets University of Bremen, jd@comnets.uni-bremen.de
