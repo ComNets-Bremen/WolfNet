@@ -1,5 +1,5 @@
-WolfNet -- A simple LoRa based network for deterrents
-=====================================================
+WolfNet - A simple LoRa based network for deterrents
+====================================================
 
 The [mAInZaun-Project](https://intelligenter-herdenschutz.de/) is aiming on
 extending existing fence by using adaptive deterrents to scare away predators.
