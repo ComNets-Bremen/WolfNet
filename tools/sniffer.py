@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Read the data from the serial line if a node is in sniffer mode
+# Jens Dede, 2023, jd@comnets.uni-bremen.de
+
 PORT="/dev/ttyUSB0"
 
 import serial
