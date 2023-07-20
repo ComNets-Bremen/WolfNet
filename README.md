@@ -7,14 +7,11 @@ extending existing fence by using adaptive deterrents to scare away predators.
 This part implements a simple protocol for the sensors and actuators: How can
 the deterrents be activated wirelessly if a predator is detected?
 
+For that, we created our own, hand-crafted protocol using LoRa. The main packet formats are described in the file [packets.md](packets.md) in this directory.
 
-What is in here?
-----------------
+The complete stack is written in [Micropython](https://micropython.org) and using [Heltec WiFi LoRa 32 v2](https://heltec.org/project/wifi-lora-32/) nodes. A migration to [Heltec WiFi LoRa 32 v3](https://heltec.org/project/wifi-lora-32-v3/) is planned in #1 .
 
-This directory contains basically everything regarding the LoRa communication
-and actuator part of the mAInZaun project.
-
-Looking for the packet format? Check the file [packets.md](packets.md) in this directory.
+Programming is done in [Visual Studio Code](https://code.visualstudio.com/) using the [pymakr-plugin](https://github.com/pycom/pymakr-vsc). If you are getting an error while running the pymakr-plugin: Make sure you have installed NodeJS!
 
 
 What is in the subdirectories?
