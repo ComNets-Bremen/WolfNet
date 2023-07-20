@@ -9,7 +9,7 @@ from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, bl
 from machine import Pin, SPI, I2C, Timer
 import utime as time
 import ubinascii
-from config import encrypt_config, lora_parameters, device_config, node_params
+from config import encrypt_config, lora_parameters, device_config, node_params, app_config
 import datahandler
 import batteryhandler
 
@@ -22,19 +22,11 @@ from nodetype import NodeTypes as NT
 
 import random
 
-
-ACK_RETRIES = 3
-ACK_WAIT    = 1000 # ms
-
-
-SHUTDOWN_DISPLAY_AFTER = 120
-DEBOUNCE_TIME = 100 # ms
-
 irq_triggered = False
 irq_debounce_timer = get_millis()
 irq_last_trigger = get_millis()
 
-display_off_time = time.time() + SHUTDOWN_DISPLAY_AFTER
+display_off_time = time.time() + app_config["SHUTDOWN_DISPLAY_AFTER"]
 display_is_on = True
 
 actor_timer = None
@@ -45,7 +37,7 @@ num_received_packets = 0
 
 def irq_handler(pin):
     global irq_triggered, irq_debounce_timer
-    if pin.value() and irq_debounce_timer + DEBOUNCE_TIME < get_millis():
+    if pin.value() and irq_debounce_timer + app_config["DEBOUNCE_TIME"] < get_millis():
         irq_triggered = True
         irq_debounce_timer = get_millis()
 
@@ -69,7 +61,7 @@ def ultrasonic_timer_handler(timer):
 
 def button_handler(pin):
     global display_off_time
-    display_off_time = time.time() + SHUTDOWN_DISPLAY_AFTER
+    display_off_time = time.time() + app_config["SHUTDOWN_DISPLAY_AFTER"]
 
 def signal_status(onoff):
     global status_led
@@ -325,6 +317,7 @@ while True:
                     print("Battery from beacon:", packet.getBattery())
                     oled.text('b:' + str(packet.get_sender()), 0, 35)
                     oled.text('r:' + str(packet.get_rssi()) + " s:" + str(packet.get_snr()), 0,45)
+                    print("RSSI: "+str(packet.get_rssi()) + " SNR: " + str(packet.get_snr()))
 
                 elif packet.get_type() == packet.TYPE_ACK:
                     # Remove acked packets from the list
@@ -333,6 +326,7 @@ while True:
 
                     for pkg in packets_waiting_ack:
                         if pkg[1] == packet.get_sequence():
+                            print("Got ACK after " + str(get_millis() - pkg[2]) + " milliseconds")
                             continue
                         reack.append(pkg)
                     packets_waiting_ack = reack
@@ -353,14 +347,14 @@ while True:
     for pkg in packets_waiting_ack:
         # packets_waiting_ack.append((bindata, seq, time.time(), 0))
         pkg = list(pkg)
-        if (pkg[2] + ACK_WAIT) < get_millis(): # retry
+        if (pkg[2] + app_config["ACK_TIMEOUT"]) < get_millis(): # retry
             print("Retry")
             pkg[3] = pkg[3] + 1
             pkg[2] = get_millis()
             pkg_sent += 1
             lora.println(pkg[0])
 
-        if pkg[3] >= ACK_RETRIES:
+        if pkg[3] >= app_config["ACK_RETRIES"]:
             continue
 
         reack.append(pkg)
@@ -372,7 +366,7 @@ while True:
     # Tidy up dedup list
     dedup = []
     for pkg in dedup_list:
-        if pkg[-1] + (2*ACK_RETRIES*ACK_WAIT) < get_millis():
+        if pkg[-1] + (2*app_config["ACK_RETRIES"]*app_config["ACK_TIMEOUT"]) < get_millis():
             continue
         else:
             dedup.append(pkg)
