@@ -14,6 +14,8 @@ What is in here?
 This directory contains basically everything regarding the LoRa communication
 and actuator part of the mAInZaun project.
 
+Looking for the packet format? Check the file [packets.md](packets.md) in this directory.
+
 
 What is in the subdirectories?
 ==============================
