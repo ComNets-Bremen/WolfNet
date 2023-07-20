@@ -54,10 +54,24 @@ wolfnet
 The firmware itself which makes the sensors and the actuators communicate. It
 is a Visual Studio Code project and using the Pymakr-plugin.
 
+Issues
+======
+
+The known issues can be found in the [github issue tracker](https://github.com/ComNets-Bremen/WolfNet/issues)
+
 License
 =======
 
+WolfNet
+-------
+
 The license of the code can be found in the [LICENSE](LICENSE) file.
+
+3rd Party
+---------
+
+- The used AES library is licensed using the MIT license and available here: https://github.com/iyassou/mpyaes
+- The driver sx127x.py for the sx127x LoRa transceiver is licensed under the Apache 2.0 license and available here: https://github.com/lemariva/uPyLoRaWAN
 
 Authors
 =======
