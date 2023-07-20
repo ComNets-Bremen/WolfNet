@@ -9,7 +9,7 @@ the deterrents be activated wirelessly if a predator is detected?
 
 For that, we created our own, hand-crafted protocol using LoRa. The main packet formats are described in the file [packets.md](packets.md) in this directory.
 
-The complete stack is written in [Micropython](https://micropython.org) and using [Heltec WiFi LoRa 32 v2](https://heltec.org/project/wifi-lora-32/) nodes. A migration to [Heltec WiFi LoRa 32 v3](https://heltec.org/project/wifi-lora-32-v3/) is planned in #1 .
+The complete stack is written in [Micropython](https://micropython.org) and using [Heltec WiFi LoRa 32 v2](https://heltec.org/project/wifi-lora-32/) nodes. A migration to [Heltec WiFi LoRa 32 v3](https://heltec.org/project/wifi-lora-32-v3/) is planned in [this issue](../../issues/1).
 
 Programming is done in [Visual Studio Code](https://code.visualstudio.com/) using the [pymakr-plugin](https://github.com/pycom/pymakr-vsc). If you are getting an error while running the pymakr-plugin: Make sure you have installed NodeJS!
 
@@ -54,7 +54,7 @@ is a Visual Studio Code project and using the Pymakr-plugin.
 Issues
 ======
 
-The known issues can be found in the [github issue tracker](https://github.com/ComNets-Bremen/WolfNet/issues)
+The known issues can be found in the [github issue tracker](../../issues)
 
 License
 =======
