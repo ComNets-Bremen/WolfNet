@@ -35,11 +35,6 @@ Schematic
 Contains the schematics as KICad files -- currently mainly the ones for the
 actuator boxes.
 
-testing\_firmware
-----------------
-
-Simple firmware for testing the newly build boxes.
-
 tools
 -----
 
