@@ -53,9 +53,10 @@ device_config = {
 
 app_config = {
     "ACK_RETRIES": 3,
-    "ACK_TIMEOUT": 400, #ms (RTT was in tests aroun 270 - 290 ms -> little bit of margin)
-    "DEBOUNCE_TIME" : 100, #ms
-    "SHUTDOWN_DISPLAY_AFTER" : 120, #s
+    # ms (RTT was in tests aroun 270 - 290 ms -> little bit of margin)
+    "ACK_TIMEOUT": 400,
+    "DEBOUNCE_TIME": 100,  # ms
+    "SHUTDOWN_DISPLAY_AFTER": 120,  # s
 }
 
 lora_parameters = {
@@ -103,7 +104,7 @@ nodes_config = {
     "4172078668": {  # PIR sensor 1, 07.2023
         "is_sender": True,
         "actor_node": 106440645,  # Either address or none to Broadcast
-        "action_cancel_previous" : False,
+        "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
         "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
@@ -114,7 +115,7 @@ nodes_config = {
     "2583535806": {  # PIR sensor 2, 07.2023, schwarz
         "is_sender": True,
         "actor_node": 106440645,  # Either address or none to Broadcast
-        "action_cancel_previous" : False,
+        "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
         "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
@@ -134,11 +135,13 @@ nodes_config = {
 
     # END SET 1
 
-    # Start Test Set 1
-    "2308316059": {  # Flash Actor 2, 2023-04
+
+    # START SET 2
+
+    "2308316059": {  # General actor, 2023-04
         "is_sender": False,
         "receiver_type": NodeTypes.ULTRASOUND_CANNON,
-        #"receiver_type": NodeTypes.FLASH,
+        # "receiver_type": NodeTypes.FLASH,
         "beacon_interval": 120,  # 120 seconds
         "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
         "battery_type": "analog",  # Read battery from Pin 36
@@ -147,7 +150,7 @@ nodes_config = {
     "2424541685": {  # PIR sensor 3, 07.2023, schwarz
         "is_sender": True,
         "actor_node": 2308316059,  # Either address or none to Broadcast
-        "action_cancel_previous" : False,
+        "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
         "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
@@ -156,7 +159,68 @@ nodes_config = {
         "use_ack": True,  # Use acks
     },
 
-    # End Test Set 1
+    "3282280225": {  # PIR sensor 4, 07.2023, schwarz
+        "is_sender": True,
+        "actor_node": 2308316059,  # Either address or none to Broadcast
+        "action_cancel_previous": False,
+        "protection_time": 1000,  # 1000 ms = 1 sec
+        "beacon_interval": 120,  # seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "max17043",
+        "gpio_button_irq": 13,  # IRQ on pin 13
+        "use_ack": True,  # Use acks
+    },
+
+    # END SET 2
+
+    # START SET 3
+
+    "951712297": {  # Universal Actor
+        "is_sender": False,
+        "receiver_type": NodeTypes.ULTRASOUND_CANNON,
+        # "receiver_type": NodeTypes.FLASH,
+        "beacon_interval": 120,  # 120 seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "analog",  # Read battery from Pin 36
+        "gpio_led_status": 13,  # Status LED on pin 13
+    },
+    "3902023872": {  # PIR sensor 5, 07.2023, schwarz, new type
+        "is_sender": True,
+        "actor_node": 951712297,  # Either address or none to Broadcast
+        "action_cancel_previous": False,
+        "protection_time": 1000,  # 1000 ms = 1 sec
+        "beacon_interval": 120,  # seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "max17043",
+        "gpio_button_irq": 13,  # IRQ on pin 13
+        "use_ack": True,  # Use acks
+    },
+    "3454793720": {  # PIR sensor 6, 07.2023, schwarz, new type
+        "is_sender": True,
+        "actor_node": 951712297,  # Either address or none to Broadcast
+        "action_cancel_previous": False,
+        "protection_time": 1000,  # 1000 ms = 1 sec
+        "beacon_interval": 120,  # seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "max17043",
+        "gpio_button_irq": 13,  # IRQ on pin 13
+        "use_ack": True,  # Use acks
+    },
+
+
+
+    # END SET 3
+
+
+    "320270687": {  # General Actor, problem?
+        "is_sender": False,
+        "receiver_type": NodeTypes.ULTRASOUND_CANNON,
+        # "receiver_type": NodeTypes.FLASH,
+        "beacon_interval": 120,  # 120 seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "analog",  # Read battery from Pin 36
+        "gpio_led_status": 13,  # Status LED on pin 13
+    },
 
 
     "2276286798": {  # PIR sensor
@@ -173,16 +237,6 @@ nodes_config = {
         "gpio_button_irq": 13,  # IRQ on pin 13
     },
 
-
-    "320270687": {  # Ultrasonic actor, 2023-07-05
-        "is_sender": False,
-        "receiver_type": NodeTypes.ULTRASOUND_CANNON,
-        "beacon_interval": 120,  # 120 seconds
-        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
-        "battery_type": "analog",  # Read battery from Pin 36
-        "action_cancel_previous": True,
-        "action_duration": 10000,  # 10000 ms = 10 sec
-    },
 
 
 
@@ -234,16 +288,6 @@ nodes_config = {
         "battery_type": "analog",  # Read battery from Pin 36
         "action_cancel_previous": True,
         "action_duration": 10000,  # 10000 ms = 10 sec
-    },
-    "951712297": {  # Flash Actor
-        "is_sender": False,
-        "receiver_type": NodeTypes.FLASH,
-        "beacon_interval": 120,  # 120 seconds
-        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
-        "battery_type": "analog",  # Read battery from Pin 36
-        "action_cancel_previous": True,
-        "action_duration": 10000,  # 10000 ms = 10 sec
-        "gpio_led_status": 13,  # Status LED on pin 13
     },
     "3567154165": {  # Ultrasonic actor, 2023-04
         "is_sender": False,
