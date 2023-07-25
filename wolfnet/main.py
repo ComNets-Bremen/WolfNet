@@ -250,13 +250,13 @@ while True:
                         if item[0] == packet.get_sequence() and item[1] == packet.get_sender():
                             current_packet_is_dup = True
                             print("DUP")
-
+                            
                     dedup_list.append((packet.get_sequence(), packet.get_sender(), get_millis()))
 
 
 
                 if packet.get_type() in (packet.TYPE_ACTOR_UNIVERSAL, ) and not nodeCfg["is_sender"] and not current_packet_is_dup:
-                    if last_event_start + (node_config["block_time"] / 1000) > time.time():
+                    if (last_event_start + (node_config["block_time"] / 1000) > time.time()) and (last_event_start > 0):
                         print("Inside Block time. Skipping event.", last_event_start + (node_config["block_time"]/1000)-time.time())
                         continue
 
