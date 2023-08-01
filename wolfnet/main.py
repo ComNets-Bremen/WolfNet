@@ -225,8 +225,8 @@ while True:
                 print("Attaching battery status to beacon:", bat_data)
                 bat = (int(bat_data[0]), int(bat_data[1]*1000))
             else:
-                print("No battery status information available. Sending zeros")
-                bat =(0,0)
+                print("No battery status information available. Sending None")
+                bat =(None,None)
             bindata = dh.sendEncBeacon(bat=bat)
         lora.println(bindata)
         jitter = 0
