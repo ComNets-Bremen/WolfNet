@@ -23,6 +23,7 @@ class max17043:
     REGISTER_VERSION = const(0X08)
     REGISTER_CONFIG = const(0X0C)
     REGISTER_COMMAND = const(0XFE)
+    MAX17043_ADRESSES = (0X36,)
 
     def __init__(self, pins=('P9','P10')):
         """
@@ -32,12 +33,22 @@ class max17043:
         self.pins = tuple(pins)
         self.i2c = I2C(0, pins=pins)
         self.i2c.init(I2C.MASTER) # init as a master
-        self.max17043Address = (self.i2c.scan())[0]
+        self.max17043Address = None
+        for dev in self.i2c.scan():
+            print("Found device with address", dev)
+            # Checking for fuel gauges (valid addresses)
+            if dev in self.MAX17043_ADRESSES:
+                self.max17043Address = dev
 
     def __init__(self, i2c):
         self.pins = None
         self.i2c = i2c
-        self.max17043Address = (self.i2c.scan())[0]
+        self.max17043Address = None
+        for dev in self.i2c.scan():
+            print("Found device with address", dev)
+            # Checking for fuel gauges (valid addresses)
+            if dev in self.MAX17043_ADRESSES:
+                self.max17043Address = dev
 
     def __str__(self):
         """
