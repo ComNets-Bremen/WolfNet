@@ -62,9 +62,14 @@ class Max17043BatteryStatus:
     def __init__(self, i2c):
         try:
             self.max17043 = max17043(i2c)
-            print("Gauge:", self.max17043)
-            print("%:", self.max17043.getSoc())
-            print("V:", self.max17043.getVCell())
+            if self.max17043.address is None:
+                print("No fuel gauge found")
+                # No device found
+                self.max17043 = None
+            else:
+                print("Gauge:", self.max17043)
+                print("%:", self.max17043.getSoc())
+                print("V:", self.max17043.getVCell())
         except:
             print("Cannot connect to fuel gauge")
             self.max17043 = None
