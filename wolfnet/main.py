@@ -7,6 +7,7 @@ Jens Dede <jd@comnets.uni-bremen.de>
 import sys
 from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink, actor_on
 from machine import Pin, SPI, I2C, Timer
+import machine
 import utime as time
 import ubinascii
 from config import encrypt_config, lora_parameters, device_config, node_params, app_config
@@ -21,6 +22,14 @@ import uasyncio
 from nodetype import NodeTypes as NT
 
 import random
+
+reset_causes = {
+    machine.PWRON_RESET : "Power on reset",
+    machine.HARD_RESET : "Hard reset",
+    machine.WDT_RESET : "Watchdog reset",
+    machine.DEEPSLEEP_RESET : "Deepsleep reset",
+    machine.SOFT_RESET : "Soft reset",
+}
 
 irq_triggered = False
 irq_debounce_timer = get_millis()
@@ -69,6 +78,8 @@ def signal_status(onoff):
         print("New LED status", onoff)
         status_led.value(onoff)
 
+print("Reset cause: ", reset_causes.get(machine.reset_cause(), "Unknown reset"))
+
 # Heltec LoRa 32 with OLED Display
 oled_width = 128
 oled_height = 64
@@ -99,9 +110,12 @@ device_spi = SPI(baudrate = 10000000,
 lora = None
 try:
     lora = SX127x(device_spi, pins=device_config, parameters=lora_parameters)
-except:
+except Exception as e:
     print("Error init LoRa radio. Restart and try again.")
-    sys.exit() # Soft reboot
+    print("Will restart in 10 seconds.")
+    print(e)
+    time.sleep(10)
+    machine.reset()
 
 actor_pin = Pin(12, Pin.OUT)
 actor_pin.value(1)
@@ -120,6 +134,11 @@ print("This is node HEX: " + str(get_node_id(True)))
 dh = datahandler.DataHandler(encrypt_config["aes_key"])
 
 nodeCfg = get_this_config()
+
+if nodeCfg is None:
+    print("Node is not in the config file. Please set it up, upload the new config and try again.")
+    print("")
+    sys.exit()
 
 irq_pin = None
 if "gpio_button_irq" in nodeCfg:
@@ -202,10 +221,13 @@ while True:
         bindata = dh.sendEncBeacon()
         if bh:
             bat_data = bh.do_read()
-            if bat_data:
+            if bat_data is not None:
                 print("Attaching battery status to beacon:", bat_data)
                 bat = (int(bat_data[0]), int(bat_data[1]*1000))
-                bindata = dh.sendEncBeacon(bat=bat)
+            else:
+                print("No battery status information available. Sending zeros")
+                bat =(0,0)
+            bindata = dh.sendEncBeacon(bat=bat)
         lora.println(bindata)
         jitter = 0
         if "beacon_jitter" in nodeCfg:
