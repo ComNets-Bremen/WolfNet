@@ -207,9 +207,19 @@ nodes_config = {
         "use_ack": True,  # Use acks
     },
 
-
-
     # END SET 3
+
+    "1445422710": {  # Blank node for testing
+        "is_sender": True,
+        "actor_node": 951712297,  # Either address or none to Broadcast
+        "action_cancel_previous": False,
+        "protection_time": 1000,  # 1000 ms = 1 sec
+        "beacon_interval": 120,  # seconds
+        "beacon_jitter": 10,    # seconds, will vary the above value by +- 10 seconds
+        "battery_type": "max17043",
+        "gpio_button_irq": 13,  # IRQ on pin 13
+        "use_ack": True,  # Use acks
+    },
 
 
     "320270687": {  # General Actor, problem?
