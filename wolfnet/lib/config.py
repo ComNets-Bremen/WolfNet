@@ -16,30 +16,6 @@ from nodetype import NodeTypes
 # limitations under the License.
 #
 
-"""
-# ES32 TTGO v1.0
-device_config = {
-    'miso':19,
-    'mosi':27,
-    'ss':18,
-    'sck':5,
-    'dio_0':26,
-    'reset':14,
-    'led':2,
-}
-
-# M5Stack ATOM Matrix
-device_config = {
-    'miso':23,
-    'mosi':19,
-    'ss':22,
-    'sck':33,
-    'dio_0':25,
-    'reset':21,
-    'led':12,
-}
-"""
-
 # Heltec LoRa module
 device_config = {
     'miso': 19,
@@ -53,7 +29,7 @@ device_config = {
 
 app_config = {
     "ACK_RETRIES": 3,
-    # ms (RTT was in tests aroun 270 - 290 ms -> little bit of margin)
+    # ms (RTT was in tests around 270 - 290 ms -> little bit of margin)
     "ACK_TIMEOUT": 400,
     "DEBOUNCE_TIME": 100,  # ms
     "SHUTDOWN_DISPLAY_AFTER": 120,  # s
@@ -70,11 +46,6 @@ lora_parameters = {
     'sync_word': 0x12,  # 0x12 = private, 0x34 = public
     'enable_CRC': False,
     'invert_IQ': False,
-}
-
-wifi_config = {
-    'ssid': '',
-    'password': ''
 }
 
 # Network wide encryption parameters
@@ -211,7 +182,7 @@ nodes_config = {
 
     "1445422710": {  # Blank node for testing
         "is_sender": True,
-        "actor_node": 951712297,  # Either address or none to Broadcast
+        "actor_node": 320270687,  # Either address or none to Broadcast
         "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
