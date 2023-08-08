@@ -6,6 +6,7 @@ Jens Dede <jd@comnets.uni-bremen.de>
 """
 import sys
 from lib.utils import get_nodename, get_node_id, get_this_config, get_millis, blink, actor_on
+import network
 from machine import Pin, SPI, I2C, Timer
 import machine
 import utime as time
@@ -30,6 +31,12 @@ reset_causes = {
     machine.DEEPSLEEP_RESET : "Deepsleep reset",
     machine.SOFT_RESET : "Soft reset",
 }
+
+# Make sure network is really down
+sta_if = network.WLAN(network.STA_IF)
+sta_if.active(False)
+ap_if = network.WLAN(network.AP_IF)
+ap_if.active(False)
 
 irq_triggered = False
 irq_debounce_timer = get_millis()
