@@ -69,3 +69,4 @@ Authors
 =======
 
 - Jens Dede, ComNets University of Bremen, jd@comnets.uni-bremen.de
+- Lars Gerken, University of Bremen, lagerken@uni-bremen.de
