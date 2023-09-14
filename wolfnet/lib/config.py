@@ -16,6 +16,7 @@ from nodetype import NodeTypes
 # limitations under the License.
 #
 
+
 # Heltec LoRa module
 device_config = {
     'miso': 19,
@@ -29,7 +30,7 @@ device_config = {
 
 app_config = {
     "ACK_RETRIES": 3,
-    # ms (RTT was in tests around 270 - 290 ms -> little bit of margin)
+    # ms (RTT was in tests aroun 270 - 290 ms -> little bit of margin)
     "ACK_TIMEOUT": 400,
     "DEBOUNCE_TIME": 100,  # ms
     "SHUTDOWN_DISPLAY_AFTER": 120,  # s
@@ -46,6 +47,11 @@ lora_parameters = {
     'sync_word': 0x12,  # 0x12 = private, 0x34 = public
     'enable_CRC': False,
     'invert_IQ': False,
+}
+
+wifi_config = {
+    'ssid': '',
+    'password': ''
 }
 
 # Network wide encryption parameters
@@ -145,8 +151,9 @@ nodes_config = {
     # END SET 2
 
     # START SET 3
+    # Replaced ESP32 and changed ID from 951712297 -> 979909243
 
-    "951712297": {  # Universal Actor
+    "979909243": {  # Universal Actor
         "is_sender": False,
         "receiver_type": NodeTypes.ULTRASOUND_CANNON,
         # "receiver_type": NodeTypes.FLASH,
@@ -157,7 +164,7 @@ nodes_config = {
     },
     "3902023872": {  # PIR sensor 5, 07.2023, schwarz, new type
         "is_sender": True,
-        "actor_node": 951712297,  # Either address or none to Broadcast
+        "actor_node": 979909243,  # Either address or none to Broadcast
         "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
@@ -168,7 +175,7 @@ nodes_config = {
     },
     "3454793720": {  # PIR sensor 6, 07.2023, schwarz, new type
         "is_sender": True,
-        "actor_node": 951712297,  # Either address or none to Broadcast
+        "actor_node": 979909243,  # Either address or none to Broadcast
         "action_cancel_previous": False,
         "protection_time": 1000,  # 1000 ms = 1 sec
         "beacon_interval": 120,  # seconds
