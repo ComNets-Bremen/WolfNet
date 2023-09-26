@@ -31,4 +31,4 @@ showdata.py generats the GUI and shows the data on the display of the rapsberryp
 
 # Pin connection
 The picture shows how the GPIOs of the RaspberryPi 3 Model B+ and the Dragino are connected and therefore needed to be changed in the code. Left is RP and right is Dragino
-![Connection RaspberryPi and Dragino](https://github.com/lilge09/basestation/blob/main/Connection.png?raw=true)
+![Connection RaspberryPi and Dragino](https://github.com/lilge09/WolfNet/blob/basestation/controlbox/Connection.png?raw=true)
